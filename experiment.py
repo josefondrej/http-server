@@ -45,7 +45,8 @@ def socket_worker(client_socket: socket.socket):
     _, relative_url, _, _ = parse_header(header)
 
     response = generate_response(relative_url)
-    client_socket.send(response)
+    bytes_sent = client_socket.send(response)
+    # TODO: Has to handle the case when not all bytes are sent
     client_socket.close()
 
 
