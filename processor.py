@@ -23,15 +23,20 @@ class Processor(Thread):
         self._request_queue.put(request)
 
     def _process(self, request: Request) -> Response:
-        relative_url = request._relative_url
-        action_name, raw_args = relative_url.split("?")
-        kwargs = raw_args.split(";")
-        kwargs = [arg.split("=") for arg in kwargs]
-        kwargs = {keyword: value for keyword, value in kwargs}
-        action = self._actions[action_name]
-        action_result = action(**kwargs)
+        try:
+            relative_url = request._relative_url
+            action_name, raw_args = relative_url.split("?")
+            kwargs = raw_args.split(";")
+            kwargs = [arg.split("=") for arg in kwargs]
+            kwargs = {keyword: value for keyword, value in kwargs}
+            action = self._actions[action_name]
+            action_result = action(**kwargs)
+            content = action_result
+        except Exception as e:
+            content = str(e)
+
         client_socket = request.client_socket
-        response = Response(action_result, client_socket)
+        response = Response(content, client_socket)
         return response
 
     def _notify_subscribers(self, response: Response):
