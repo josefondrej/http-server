@@ -26,7 +26,7 @@ class Processor(Thread):
         try:
             relative_url = request._relative_url
             action_name, raw_args = relative_url.split("?")
-            kwargs = raw_args.split(";")
+            kwargs = raw_args.split("&")
             kwargs = [arg.split("=") for arg in kwargs]
             kwargs = {keyword: value for keyword, value in kwargs}
             action = self._actions[action_name]
@@ -35,8 +35,7 @@ class Processor(Thread):
         except Exception as e:
             content = str(e)
 
-        client_socket = request.client_socket
-        response = Response(content, client_socket)
+        response = Response(content, request)
         return response
 
     def _notify_subscribers(self, response: Response):

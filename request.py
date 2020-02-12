@@ -11,6 +11,13 @@ class Request(object):
         self._header_name_to_header_content = header_name_to_header_content
         self._socket = socket
 
+    def __str__(self) -> str:
+        representation = f"{self._http_method} {self._relative_url} {self._http_version}\n"
+        for header_name, header_content in self._header_name_to_header_content.items():
+            representation += f"{header_name}: {header_content}\n"
+
+        return representation
+
     @property
     def client_socket(self) -> socket.socket:
         return self._socket

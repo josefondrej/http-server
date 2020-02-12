@@ -1,20 +1,22 @@
 from typing import Callable
 
 from listener import Listener
+from logging import log_request
 from processor import Processor
 from response_queue import ResponseQueue
 
 
 class Server(object):
-    def __init__(self):
+    def __init__(self, host: str = "0.0.0.0", port: int = 9494):
         self._processor = Processor()
         self._response_queue = ResponseQueue()
-        self._listener = Listener()
+        self._listener = Listener(host, port)
 
         self._init()
 
     def _init(self):
         self._listener.add_subscriber(self._processor.enqueue)
+        self._listener.add_subscriber(log_request)
         self._processor.add_subscriber(self._response_queue.enqueue)
 
     def start(self):
