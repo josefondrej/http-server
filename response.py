@@ -14,9 +14,9 @@ STATUS_CODE_TO_STATUS_MESSAGE = {200: "OK", 404: "NOT_FOUND"}
 
 
 class Response(object):
-    def __init__(self, content: str, request: Request,
+    def __init__(self, content: bytes, request: Request = None,
                  headers: Dict[str, str] = None,
-                 status_code: int = 200):  # TODO: add request as a parameter and access socket through that
+                 status_code: int = 200):
         self._content = content
         self._request = request
         self._headers = headers
@@ -26,16 +26,19 @@ class Response(object):
     def client_socket(self):
         return self._request._socket
 
+    def set_request(self, request: Request):
+        self._request = request
+
     def serialize(self):
         content = self._content
-        bytes_html = content.encode("utf-8")
+        bytes_html = content
         http_version = "HTTP/1.1"
         status_code = str(self._status_code)
         status_message = STATUS_CODE_TO_STATUS_MESSAGE[self._status_code]
         headers = DEFAULT_HEADERS
         headers["Content-Length"] = len(bytes_html)
         if self._headers is not None:
-            for header_name, header_value in self._headers:
+            for header_name, header_value in self._headers.items():
                 headers[header_name] = header_value
 
         first_line = " ".join([http_version, status_code, status_message])

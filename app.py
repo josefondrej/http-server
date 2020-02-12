@@ -1,3 +1,4 @@
+from response import Response
 from server import Server
 
 # Test: go to browser http://0.0.0.0:9494/index?x=2&y=4
@@ -27,6 +28,15 @@ def _render_template(template_name: str = "index.html", **kwargs):
 def index(x, y):
     payload = str(int(x) ** 2 + int(y) ** 2)
     return _render_template("index.html", payload=payload)
+
+
+@server.web
+def static(path: str):
+    absolute_path = STATIC_PATH + path
+    with open(absolute_path, "rb") as file:
+        payload = file.read()
+
+    return Response(payload, headers={"Content-Type": "image/png"})
 
 
 server.start()

@@ -13,6 +13,9 @@ class Processor(Thread):
         super().__init__()
 
     def add_action(self, action_name: str, action):
+        """
+        :param action: takes some inputs and produces output either in the form of string or as Response object
+        """
         self._actions[action_name] = action
         self._actions["/" + action_name] = action
 
@@ -35,7 +38,13 @@ class Processor(Thread):
         except Exception as e:
             content = str(e)
 
-        response = Response(content, request)
+        response = content
+
+        if not isinstance(content, Response):
+            response = Response(bytes(content, "utf-8"))
+
+        response.set_request(request)
+
         return response
 
     def _notify_subscribers(self, response: Response):
