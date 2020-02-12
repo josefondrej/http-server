@@ -1,42 +1,21 @@
-from response import Response
-from server import Server
+from server import Server, response_from_file_name, render_template
 
 # Test: go to browser http://0.0.0.0:9494/index?x=2&y=4
+#                     http://0.0.0.0:9494/static?path=img/img_lights.jpg
+#                     http://0.0.0.0:9494/static?path=example.html
+
 host = "0.0.0.0"
 port = 9494
 
 server = Server(host, port)
 
-STATIC_PATH = "./static/"
-TEMPLATES_PATH = "./templates/"
-
-
-def _render_template(template_name: str = "index.html", **kwargs):
-    template_path = TEMPLATES_PATH + template_name
-    with open(template_path, "r") as template:
-        template_lines = template.readlines()
-
-    template_str = "\n".join(template_lines)
-    rendered_template = template_str
-
-    for key, value in kwargs.items():
-        rendered_template = rendered_template.replace("{" + key + "}", value)
-
-    return rendered_template
-
 @server.web
 def index(x, y):
     payload = str(int(x) ** 2 + int(y) ** 2)
-    return _render_template("index.html", payload=payload)
-
+    return render_template("index.html", payload=payload)
 
 @server.web
 def static(path: str):
-    absolute_path = STATIC_PATH + path
-    with open(absolute_path, "rb") as file:
-        payload = file.read()
-
-    return Response(payload, headers={"Content-Type": "image/png"})
-
+    return response_from_file_name(path)
 
 server.start()
